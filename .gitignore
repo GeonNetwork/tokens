@@ -1,0 +1,6 @@
+.DS_Store
+*.gz
+/node_modules
+bridge.log
+.node-xmlhttprequest-*
+/build
