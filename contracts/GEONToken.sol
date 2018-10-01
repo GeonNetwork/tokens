@@ -26,7 +26,7 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableT
 		require(transferFrom(owner, to, amount));
 	}
 
-	// ERC223 transfer for hard upgrade. It doubles as 
+	// ERC223 transfer for tokenFallback upgrade.  
 	function transfer(address to, uint256 amount) public returns (bool) {
 		bool success = super.transfer(to, amount);
 		if (success) {
@@ -35,7 +35,7 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableT
 		return success;
 	}
 
-	// ERC223 transferFrom for hard upgrade. 
+	// ERC223 transferFrom for tokenFallback upgrade. 
 	function transferFrom(address from, address to, uint256 amount) public returns (bool) {
 		bool success = super.transferFrom(from, to, amount);
 		if (success) {
@@ -44,6 +44,7 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableT
 		return success;
 	}
 
+	// ERC223 helper method. 
 	function callTokenFallback(address to, uint256 amount) internal {
 		uint codeLength;
 		assembly {

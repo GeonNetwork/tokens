@@ -108,66 +108,50 @@ contract("GEONBabyToken", function(accounts) {
     assert.equal(amount, 0)
   })
 
-  it("should vest 20% on the 1st day", async function() {
-    await babyToken.mint(investor1, 10000)
+  describe("during redemptions", function() {
+    beforeEach(async function() {
+      await babyToken.mint(investor1, 10000)
 
-    const pubToken = await GEONToken.new()
-    await babyToken.startRedemptions(pubToken.address)
-    
-    const amount = await babyToken.redeemableBalanceOf(investor1)
-    assert.equal(amount, 2000)
-  })
+      const pubToken = await GEONToken.new()
+      await babyToken.startRedemptions(pubToken.address)
+    })
 
-  it("should vest 40% after 90 days", async function() {
-    await babyToken.mint(investor1, 10000)
+    it("should vest 20% on the 1st day", async function() {    
+      const amount = await babyToken.redeemableBalanceOf(investor1)
+      assert.equal(amount, 2000)
+    })
 
-    const pubToken = await GEONToken.new()
-    await babyToken.startRedemptions(pubToken.address)
-    
-    const day = 60*60*24
-    await timeTravel(91 * day)
+    it("should vest 40% after 90 days", async function() {
+      const day = 60*60*24
+      await timeTravel(91 * day)
 
-    const amount = await babyToken.redeemableBalanceOf(investor1)
-    assert.equal(amount, 4000)
-  })
+      const amount = await babyToken.redeemableBalanceOf(investor1)
+      assert.equal(amount, 4000)
+    })
 
-  it("should vest 60% after 180 days", async function() {
-    await babyToken.mint(investor1, 10000)
+    it("should vest 60% after 180 days", async function() {
+      const day = 60*60*24
+      await timeTravel(181 * day)
 
-    const pubToken = await GEONToken.new()
-    await babyToken.startRedemptions(pubToken.address)
-    
-    const day = 60*60*24
-    await timeTravel(181 * day)
+      const amount = await babyToken.redeemableBalanceOf(investor1)
+      assert.equal(amount, 6000)
+    })
 
-    const amount = await babyToken.redeemableBalanceOf(investor1)
-    assert.equal(amount, 6000)
-  })
+    it("should vest 80% after 270 days", async function() {    
+      const day = 60*60*24
+      await timeTravel(271 * day)
 
-  it("should vest 80% after 270 days", async function() {
-    await babyToken.mint(investor1, 10000)
+      const amount = await babyToken.redeemableBalanceOf(investor1)
+      assert.equal(amount, 8000)
+    })
 
-    const pubToken = await GEONToken.new()
-    await babyToken.startRedemptions(pubToken.address)
-    
-    const day = 60*60*24
-    await timeTravel(271 * day)
+    it("should vest 100% after 360 days", async function() {
+      const day = 60*60*24
+      await timeTravel(361 * day)
 
-    const amount = await babyToken.redeemableBalanceOf(investor1)
-    assert.equal(amount, 8000)
-  })
-
-  it("should vest 100% after 360 days", async function() {
-    await babyToken.mint(investor1, 10000)
-
-    const pubToken = await GEONToken.new()
-    await babyToken.startRedemptions(pubToken.address)
-    
-    const day = 60*60*24
-    await timeTravel(361 * day)
-
-    const amount = await babyToken.redeemableBalanceOf(investor1)
-    assert.equal(amount, 10000)
+      const amount = await babyToken.redeemableBalanceOf(investor1)
+      assert.equal(amount, 10000)
+    })
   })
 
   it("should allow the owner to destroy the contract", async function() {

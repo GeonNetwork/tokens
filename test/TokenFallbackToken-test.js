@@ -31,16 +31,34 @@ contract("TokenFallbackToken", function(accounts) {
     await captureError(token2.tokenFallback(investor2, 1000, 0x0, { from: investor2 }))
   })
 
-  it("should update balances on erc223 transfers", async function() {
+  it("should allow erc223 transfers", async function() {
     const upgraded = await token1.transfer(token2.address, 1000, { from: investor1 })
     assert(upgraded)
-    const balance = await token2.balanceOf(investor1)
-    assert.equal(balance, 1000)
   })
 
-  it("should burn the amount from new token", async function() {
-    await token1.transfer(token2.address, 1000, { from: investor1 })
-    const tokenBalance = await token1.balanceOf(token2.address)
-    assert.equal(tokenBalance, 0)
+  describe("after upgrade transfer", function() {
+    beforeEach(async function() {
+      await token1.transfer(token2.address, 1000, { from: investor1 })
+    })
+
+    it("should update balance on new token", async function() {
+      const balance = await token2.balanceOf(investor1)
+      assert.equal(balance, 1000)
+    })
+
+    it("should burn the transaction amount from old token", async function() {
+      const tokenBalance = await token1.balanceOf(token2.address)
+      assert.equal(tokenBalance, 0)
+    })
+
+    it("should decrease old token supply", async function() {
+      const totalSupply = await token1.totalSupply()
+      assert.equal(totalSupply, 0)
+    })
+
+    it("should increase new token supply", async function() {
+      const totalSupply = await token2.totalSupply()
+      assert.equal(totalSupply, 1000)
+    })
   })
 })
