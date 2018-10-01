@@ -5,17 +5,17 @@ Proprietary and confidential
 Written by AJ Ostrow <aj.ostrow@pegasusfintech.com>
 */
 
-const GEONTokenV1 = artifacts.require("GEONTokenV1")
-const GEONTokenV2 = artifacts.require("GEONTokenV2")
+const GEONToken = artifacts.require("GEONToken")
+const SoftUpgradeToken = artifacts.require("SoftUpgradeToken")
 
-contract("GEONTokenV2", function(accounts) {
+contract("SoftUpgradeToken", function(accounts) {
   const owner = accounts[0]
   const investor1 = accounts[1]
   const investor2 = accounts[2]
 
   let token1
   beforeEach(async function() {
-    token1 = await GEONTokenV1.new()
+    token1 = await GEONToken.new()
     await token1.addMinter(owner)
     await token1.mint(investor1, 1000)
     await token1.finishMinting()
@@ -24,7 +24,7 @@ contract("GEONTokenV2", function(accounts) {
   let token2
   beforeEach(async function() {
     await token1.pause()
-    token2 = await GEONTokenV2.new(token1.address)
+    token2 = await SoftUpgradeToken.new(token1.address)
   })
 
   it("should add total supply from last version", async function() {

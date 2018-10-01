@@ -8,25 +8,15 @@ Written by AJ Ostrow <aj.ostrow@pegasusfintech.com>
 pragma solidity ^0.4.23;
 
 import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
-import 'openzeppelin-solidity/contracts/token/ERC20/RBACMintableToken.sol';
-import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
-import './GEONTokenV1.sol';
 
-contract GEONTokenV2 is StandardToken, RBACMintableToken, PausableToken {
-	string public symbol = "GEON";
-	string public name = "GEON Token";
-	uint8 public decimals = 18;
-	uint8 public version = 2;
-
+contract SoftUpgradeToken is StandardToken {
 	ERC20 private lastVersion;
 	mapping(address => bool) private migratedBalances;
 	uint256 private migratedSupply = 0;
 
-	constructor(GEONTokenV1 token) public {
+	constructor(ERC20 token) public {
 		require(address(token) != address(0));
-		require(token.paused());
-		require(token.mintingFinished());
 		lastVersion = token;
 	}
 
@@ -58,9 +48,5 @@ contract GEONTokenV2 is StandardToken, RBACMintableToken, PausableToken {
 	function approve(address spender, uint256 tokens) public returns (bool) {
 		migrate();
 		return super.approve(spender, tokens);
-	}
-
-	function recoverLost(ERC20 token, address loser) public onlyOwner {
-	    token.transfer(loser, token.balanceOf(this));
 	}
 }

@@ -16,6 +16,7 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken {
 	string public symbol = "GEON";
 	string public name = "GEON Token";
 	uint8 public decimals = 18;
+	uint8 public version = 1;
 
 	function claim(address to, uint256 amount) public {
 		require(transferFrom(owner, to, amount));
