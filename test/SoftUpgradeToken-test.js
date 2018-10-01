@@ -27,14 +27,43 @@ contract("SoftUpgradeToken", function(accounts) {
     token2 = await SoftUpgradeToken.new(token1.address)
   })
 
+  it("should assign temporary supply to last version", async function() {
+    const lastVersionBalance = await token2.balanceOf(token1.address)
+    assert.equal(lastVersionBalance, 1000)
+  })
+
+  it("should answer if investor has migrated", async function() {
+    const migrated = await token2.migrated(investor1);
+    assert(!migrated)
+  })
+
   it("should add total supply from last version", async function() {
     const totalSupply = await token2.totalSupply()
     assert.equal(totalSupply, 1000)
   })
 
-  it("should add balance from last version", async function() {
+  it("should not double count supply", async function() {
+    await token2.migrate(investor1)
+    const totalSupply = await token2.totalSupply()
+    assert.equal(totalSupply, 1000)
+  })
+
+  it("should count the balance from last version", async function() {
     const balance = await token2.balanceOf(investor1)
     assert.equal(balance, 1000)
+  })
+
+  it("should not migrate balance multiple times", async function() {
+    await token2.migrate(investor1)
+    await token2.migrate(investor1)
+    const balance = await token2.balanceOf(investor1)
+    assert.equal(balance, 1000)
+  })
+
+  it("should allow anyone to batch migrate accounts", async function() {
+    await token2.batchMigrate([ investor1 ])
+    const migrated = await token2.migrated(investor1)
+    assert(migrated)
   })
 
   it("should allow transfer", async function() {

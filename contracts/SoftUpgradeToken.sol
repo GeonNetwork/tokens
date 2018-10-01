@@ -13,40 +13,55 @@ import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 contract SoftUpgradeToken is StandardToken {
 	ERC20 private lastVersion;
 	mapping(address => bool) private migratedBalances;
-	uint256 private migratedSupply = 0;
 
 	constructor(ERC20 token) public {
 		require(address(token) != address(0));
 		lastVersion = token;
+
+		// Mint the last version supply. 
+		uint256 lastVersionSupply = lastVersion.totalSupply();
+	    totalSupply_ = totalSupply_.add(lastVersionSupply);
+		balances[lastVersion] = lastVersionSupply;
+		emit Transfer(address(0), lastVersion, lastVersionSupply);
 	}
 
-	function migrate() public {
-		if (!migratedBalances[msg.sender]) {
-			uint256 lastBalance = lastVersion.balanceOf(msg.sender);
-			migratedBalances[msg.sender] = true;
-			migratedSupply = migratedSupply.add(lastBalance);
-			balances[msg.sender] = balances[msg.sender].add(lastBalance);
+	function migrated(address account) public view returns (bool) {
+		return migratedBalances[account];
+	}
+
+	function migrate(address account) public returns (bool) {
+		require(account != address(0));
+		if (!migrated(account)) {
+			migratedBalances[account] = true;
+			uint256 lastBalance = lastVersion.balanceOf(account);
+			balances[lastVersion] = balances[lastVersion].sub(lastBalance);
+			balances[account] = balances[account].add(lastBalance);
+			emit Transfer(lastVersion, account, lastBalance);
+			return true;
+		}
+		return false;
+	}
+
+	function batchMigrate(address[] accounts) public {
+		for (uint i = 0; i < accounts.length; i++) {
+			migrate(accounts[i]);
 		}
 	}
 
-	function totalSupply() public view returns (uint256) {
-		return super.totalSupply().add(lastVersion.totalSupply().sub(migratedSupply));
-	}
-
 	function balanceOf(address account) public view returns (uint256) {
-		if (!migratedBalances[account]) {
+		if (!migrated(account)) {
 			return lastVersion.balanceOf(account).add(balances[account]);
 		}
 		return balances[account];
 	}
 
 	function transfer(address to, uint256 amount) public returns (bool) {
-		migrate();
+		migrate(msg.sender);
 		super.transfer(to, amount);
 	}
 
 	function approve(address spender, uint256 tokens) public returns (bool) {
-		migrate();
+		migrate(msg.sender);
 		return super.approve(spender, tokens);
 	}
 }
