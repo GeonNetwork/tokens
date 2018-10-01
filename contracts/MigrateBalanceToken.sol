@@ -10,7 +10,9 @@ pragma solidity ^0.4.23;
 import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
-contract SoftUpgradeToken is StandardToken {
+contract MigrateBalanceToken is StandardToken {
+	event Upgrade(address indexed to, uint256 amount);
+
 	ERC20 private lastVersion;
 	mapping(address => bool) private migratedBalances;
 
@@ -36,6 +38,7 @@ contract SoftUpgradeToken is StandardToken {
 			uint256 lastBalance = lastVersion.balanceOf(account);
 			balances[lastVersion] = balances[lastVersion].sub(lastBalance);
 			balances[account] = balances[account].add(lastBalance);
+			emit Upgrade(account, lastBalance);
 			emit Transfer(lastVersion, account, lastBalance);
 			return true;
 		}

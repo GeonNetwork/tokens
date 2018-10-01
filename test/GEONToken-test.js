@@ -38,12 +38,5 @@ contract("GEONToken", function(accounts) {
     const paused = await token.paused()
     assert(paused)
   })
-
-  it("should recover mistaken transfers", async function() {
-    await token.mint(investor1, 1000)
-    await token.transfer(token.address, 1000, { from: investor1 })
-    await token.recoverLost(token.address, investor1)
-    const balance = await token.balanceOf(investor1)
-    assert.equal(balance, 1000)
-  })
 })
+
