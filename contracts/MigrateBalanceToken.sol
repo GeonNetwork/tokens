@@ -22,7 +22,7 @@ contract MigrateBalanceToken is StandardToken {
 
 		// Mint the last version supply. 
 		uint256 lastVersionSupply = lastVersion.totalSupply();
-	    totalSupply_ = totalSupply_.add(lastVersionSupply);
+		totalSupply_ = totalSupply_.add(lastVersionSupply);
 		balances[lastVersion] = lastVersionSupply;
 		emit Transfer(address(0), lastVersion, lastVersionSupply);
 	}

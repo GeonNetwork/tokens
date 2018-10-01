@@ -27,32 +27,32 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableT
 	}
 
 	// ERC223 transfer for hard upgrade. It doubles as 
-    function transfer(address to, uint256 amount) public returns (bool) {
+	function transfer(address to, uint256 amount) public returns (bool) {
 		bool success = super.transfer(to, amount);
 		if (success) {
-	        callTokenFallback(to, amount);
+			callTokenFallback(to, amount);
 		}
 		return success;
-    }
+	}
 
 	// ERC223 transferFrom for hard upgrade. 
-    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+	function transferFrom(address from, address to, uint256 amount) public returns (bool) {
 		bool success = super.transferFrom(from, to, amount);
 		if (success) {
-	        callTokenFallback(to, amount);
+			callTokenFallback(to, amount);
 		}
 		return success;
-    }
+	}
 
 	function callTokenFallback(address to, uint256 amount) internal {
-        uint codeLength;
-        assembly {
-            codeLength := extcodesize(to)
-        }
-        if (codeLength > 0) {
+		uint codeLength;
+		assembly {
+			codeLength := extcodesize(to)
+		}
+		if (codeLength > 0) {
 			bytes memory empty;
-            ERC223ReceivingContract receiver = ERC223ReceivingContract(to);
-            receiver.tokenFallback(msg.sender, amount, empty);
-        }
+			ERC223ReceivingContract receiver = ERC223ReceivingContract(to);
+			receiver.tokenFallback(msg.sender, amount, empty);
+		}
 	}
 }
