@@ -9,8 +9,9 @@ pragma solidity ^0.4.23;
 
 import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
+import './ERC223ReceivingContract.sol';
 
-contract TokenFallbackToken is StandardToken {
+contract TokenFallbackToken is StandardToken, ERC223ReceivingContract {
 	event Upgrade(address indexed to, uint256 amount);
 
 	BurnableToken private lastVersion;

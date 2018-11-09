@@ -6,6 +6,7 @@ Written by AJ Ostrow <aj.ostrow@pegasusfintech.com>
 */
 
 const GEONToken = artifacts.require("GEONToken")
+const { captureError } = require("./utils")
 
 contract("GEONToken", function(accounts) {
   const owner = accounts[0]
@@ -38,5 +39,10 @@ contract("GEONToken", function(accounts) {
     const paused = await token.paused()
     assert(paused)
   })
-})
 
+  it("should prevent transfers when paused", async function() {
+    await token.mint(owner, 1000)
+    await token.pause()
+    await captureError(token.transfer(investor1, 1000))
+  })
+})
