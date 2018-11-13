@@ -45,4 +45,9 @@ contract("GEONToken", function(accounts) {
     await token.pause()
     await captureError(token.transfer(investor1, 1000))
   })
+
+  it("should hard cap supply at 850 million", async function() {
+    await token.mint(owner, 850 * 1e6 * 1e18);
+    await captureError(token.mint(owner, 1));
+  })
 })
