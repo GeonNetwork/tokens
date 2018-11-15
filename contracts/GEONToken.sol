@@ -17,6 +17,8 @@ import 'openzeppelin-solidity/contracts/ownership/CanReclaimToken.sol';
 import './ERC223ReceivingContract.sol';
 
 contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableToken, CanReclaimToken {
+	uint256 public constant MAX_SUPPLY = 850000000 * 1e18;
+
 	string public symbol = "GEON";
 	string public name = "GEON Token";
 	uint8 public decimals = 18;
@@ -24,6 +26,12 @@ contract GEONToken is StandardToken, RBACMintableToken, PausableToken, BurnableT
 
 	function claim(address to, uint256 amount) public {
 		require(transferFrom(owner, to, amount));
+	}
+
+	// Override Mintable to limit supply. 
+	function mint(address to, uint256 amount) public returns (bool) {
+		require(totalSupply() + amount <= MAX_SUPPLY);
+		return super.mint(to, amount);
 	}
 
 	// ERC223 transfer for tokenFallback upgrade.  

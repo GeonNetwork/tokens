@@ -8,6 +8,7 @@ Written by AJ Ostrow <aj.ostrow@pegasusfintech.com>
 pragma solidity ^0.4.23;
 
 import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
 contract MigrateBalanceToken is StandardToken {
@@ -16,8 +17,9 @@ contract MigrateBalanceToken is StandardToken {
 	ERC20 private lastVersion;
 	mapping(address => bool) private migratedBalances;
 
-	constructor(ERC20 token) public {
+	constructor(PausableToken token) public {
 		require(address(token) != address(0));
+		require(token.paused());
 		lastVersion = token;
 
 		// Mint the last version supply. 
