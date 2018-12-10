@@ -36,6 +36,20 @@ contract("TokenFallbackToken", function(accounts) {
     assert(upgraded)
   })
 
+  it("should revert erc223 transfers to non receivers", async function() {
+    // Baby token does not implement ERC223 receiver. 
+    const GEONBabyToken = artifacts.require("GEONBabyToken")
+    const babyToken = await GEONBabyToken.new()  
+    // So the transfer fails. 
+    await captureError(token1.transfer(babyToken.address, 1000, { from: investor1 }))
+    const balance = await token1.balanceOf(investor1)
+    assert.equal(balance, 1000)
+  })
+
+  it("should prevent erc223 transfers that fail", async function() {
+    await captureError(token1.transfer(token2.address, 2000, { from: investor1 }))
+  })
+
   describe("after upgrade transfer", function() {
     beforeEach(async function() {
       await token1.transfer(token2.address, 1000, { from: investor1 })
